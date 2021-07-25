@@ -4,12 +4,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.springboot.demo</groupId>
     <artifactId>springbootex</artifactId>
+    <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
     <name>springbootex</name>
     <description>Demo project for Spring Boot</description>
 
     <modules>
         <module>spring-boot-rabbitmq</module>
+        <module>netty</module>
     </modules>
 
 
