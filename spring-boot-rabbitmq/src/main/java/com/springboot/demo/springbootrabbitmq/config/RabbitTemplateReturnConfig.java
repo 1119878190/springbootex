@@ -18,5 +18,9 @@ public class RabbitTemplateReturnConfig implements RabbitTemplate.ReturnCallback
         rabbitTemplate.setReturnCallback(this);             //指定 ReturnCallback
     }
 
-   
+
+    @Override
+    public void returnedMessage(Message message, int i, String s, String s1, String s2) {
+
+    }
 }
