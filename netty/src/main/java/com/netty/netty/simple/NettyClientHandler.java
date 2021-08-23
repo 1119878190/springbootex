@@ -45,4 +45,5 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
         cause.printStackTrace();
         ctx.close();
     }
+
 }
