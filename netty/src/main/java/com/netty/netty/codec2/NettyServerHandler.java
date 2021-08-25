@@ -57,7 +57,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<MyDataInfo.M
     protected void channelRead0(ChannelHandlerContext ctx, MyDataInfo.MyMessage msg) throws Exception {
             // 读取从客户端发送的StudentPojo.Student
 
-        // 根据dataType显示不懂的信息
+        // 根据dataType显示不同的信息
         MyDataInfo.MyMessage.DataType dataType = msg.getDataType();
         if (dataType == MyDataInfo.MyMessage.DataType.StudentType){
             MyDataInfo.Student student = msg.getStudent();
