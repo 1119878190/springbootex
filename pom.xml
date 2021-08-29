@@ -13,6 +13,7 @@
         <module>spring-boot-rabbitmq</module>
         <module>netty</module>
         <module>redission-demo</module>
+        <module>easyexcel</module>
     </modules>
 
 
