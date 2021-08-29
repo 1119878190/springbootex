@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: redission-demo
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 47.101.50.185:8848
+      config:
+        server-addr: 47.101.50.185:8848
+        file-extension: yaml
+        group: DEV_GROUP
+        name: springbootex
+  profiles:
+    active: dev
+  rabbitmq:
+    publisher-returns: true
+    publisher-confirm-type: correlated
+
+
+
+server:
+  port: 8080
