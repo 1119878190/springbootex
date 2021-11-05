@@ -5,6 +5,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.subject.Subject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,11 +23,13 @@ public class MyController {
     }
 
     @RequestMapping("/user/add")
+    @RequiresPermissions(value = {"user:add"})
     public String add(){
         return "user/add";
     }
 
     @RequestMapping("/user/update")
+    @RequiresPermissions(value = {"user:update"})
     public String update(){
         return "user/update";
     }
