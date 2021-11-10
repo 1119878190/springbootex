@@ -5,6 +5,7 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 
 public class GroupChatServer {
@@ -40,6 +41,8 @@ public class GroupChatServer {
                             pipeline.addLast("decoder",new StringDecoder());
                             // 向pipeline加入编码器
                             pipeline.addLast("encoder",new StringDecoder());
+                            // 通过“\r\n 解决拆包粘包”
+                            pipeline.addLast("frameDecoder",new LineBasedFrameDecoder(1024));
                             // 加入自己的业务处理handler
                             pipeline.addLast(new GroupChatServerHandler());
 
