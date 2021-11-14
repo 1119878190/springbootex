@@ -16,6 +16,7 @@
         <module>easyexcel</module>
         <module>shiro_demo</module>
         <module>mongodb</module>
+        <module>elasticsearch</module>
     </modules>
 
 
