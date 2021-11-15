@@ -3,10 +3,19 @@ package com.es.demo;
 import com.alibaba.fastjson.JSON;
 import com.es.demo.pojo.User;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
@@ -14,11 +23,18 @@ import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 public class ESTest {
@@ -32,7 +48,7 @@ public class ESTest {
      * 测试：创建索引
      */
     @Test
-    void testCreateIndex(){
+    void testCreateIndex() {
         // 1.创建索引请求
         CreateIndexRequest request = new CreateIndexRequest("spring_es");
         // 2.执行创建请求
@@ -49,7 +65,7 @@ public class ESTest {
      * 测试索引是否存在
      */
     @Test
-    void testExistIndex(){
+    void testExistIndex() {
         GetIndexRequest request = new GetIndexRequest("spring_es");
         boolean exists = false;
         try {
@@ -65,7 +81,7 @@ public class ESTest {
      * 测试 删除索引
      */
     @Test
-    void deleteIndex(){
+    void deleteIndex() {
         DeleteIndexRequest request = new DeleteIndexRequest("spring_es");
         AcknowledgedResponse response = null;
         try {
@@ -80,7 +96,7 @@ public class ESTest {
      * 添加文档
      */
     @Test
-    void addDocument(){
+    void addDocument() {
         User user = new User("张三", 3);
         IndexRequest request = new IndexRequest("spring_es");
         request.id("1");
@@ -97,8 +113,11 @@ public class ESTest {
         System.out.println(response.status());
     }
 
+    /**
+     * 测试 文档是否存在
+     */
     @Test
-    void existDocument(){
+    void existDocument() {
         GetRequest request = new GetRequest("spring_es", "2");
         boolean exists = false;
         try {
@@ -107,5 +126,100 @@ public class ESTest {
             e.printStackTrace();
         }
         System.out.println(exists);
+    }
+
+    /**
+     * 获取文档
+     *
+     * @throws IOException
+     */
+    @Test
+    void getDocument() throws IOException {
+        GetRequest request = new GetRequest("spring_es", "1");
+        GetResponse response = restHighLevelClient.get(request, RequestOptions.DEFAULT);
+        System.out.println(response);
+        System.out.println(response.getSourceAsString());
+    }
+
+    /**
+     * 更新文档
+     */
+    @Test
+    void updateDocument() {
+        UpdateRequest request = new UpdateRequest("spring_es", "1");
+        User user = new User("lafe", 23);
+        request.doc(JSON.toJSONString(user), XContentType.JSON);
+        UpdateResponse response = null;
+        try {
+            response = restHighLevelClient.update(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(response);
+
+    }
+
+    /**
+     * 删除文档
+     *
+     * @throws IOException
+     */
+    @Test
+    void deleteDocument() throws IOException {
+        DeleteRequest request = new DeleteRequest("spring_es", "1");
+        DeleteResponse response = restHighLevelClient.delete(request, RequestOptions.DEFAULT);
+        System.out.println(response);
+    }
+
+    /**
+     * 批量插入
+     */
+    @Test
+    void batchSave() throws IOException {
+        BulkRequest bulkRequest = new BulkRequest();
+        bulkRequest.timeout("10s");
+
+        List<User> list = new ArrayList<>();
+        list.add(new User("张三1", 1));
+        list.add(new User("张三2", 2));
+        list.add(new User("张三3", 3));
+        list.add(new User("张三4", 4));
+        list.add(new User("张三5", 5));
+        list.add(new User("张三6", 6));
+        list.add(new User("张三7", 7));
+
+        for (int i = 0; i < list.size(); i++) {
+            bulkRequest.add(
+                    new IndexRequest("spring_es")
+                            .id("" + i)
+                            .source(JSON.toJSONString(list.get(i)), XContentType.JSON)
+            );
+        }
+        BulkResponse response = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+        System.out.println(response.hasFailures());
+    }
+
+    /**
+     * 查询
+     *
+     * @throws IOException
+     */
+    @Test
+    void search() throws IOException {
+        SearchRequest request = new SearchRequest("spring_es");
+
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        //TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("name.keyword", "张三1");
+        MatchQueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("name", "张三1");
+        sourceBuilder.query(matchQueryBuilder);
+        sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
+        request.source(sourceBuilder);
+
+        SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
+        System.out.println(response);
+        System.out.println("===========================");
+        for (SearchHit documentFields : response.getHits().getHits()) {
+            System.out.println(documentFields.getSourceAsMap());
+        }
     }
 }
