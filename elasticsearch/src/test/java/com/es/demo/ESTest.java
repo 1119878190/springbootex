@@ -21,12 +21,15 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,6 +37,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
@@ -208,10 +212,25 @@ public class ESTest {
     void search() throws IOException {
         SearchRequest request = new SearchRequest("spring_es");
 
+        // 调价构造
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+
+        // 分页
+        sourceBuilder.from(1);
+        sourceBuilder.size(20);
+
+        // 查询
         //TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("name.keyword", "张三1");
         MatchQueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("name", "张三1");
         sourceBuilder.query(matchQueryBuilder);
+
+        // 高亮
+        HighlightBuilder highlightBuilder = new HighlightBuilder();
+        highlightBuilder.field("name");
+        highlightBuilder.preTags("<span style='color:red'>");
+        highlightBuilder.postTags("</span>");
+        sourceBuilder.highlighter(highlightBuilder);
+
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
         request.source(sourceBuilder);
 
@@ -219,6 +238,22 @@ public class ESTest {
         System.out.println(response);
         System.out.println("===========================");
         for (SearchHit documentFields : response.getHits().getHits()) {
+
+            Map<String, HighlightField> highlightFields = documentFields.getHighlightFields();
+            HighlightField title = highlightFields.get("title");
+            Map<String, Object> sourceAsMap = documentFields.getSourceAsMap();// 原来的结果
+
+            // 解析高亮字段，将原来的字段替换为我们高亮的字段即可
+            if (title != null){
+                Text[] fragments = title.fragments();
+                String n_title = "";
+                for (Text text : fragments) {
+                    n_title += text;
+                }
+                sourceAsMap.put("title",n_title);
+            }
+
+
             System.out.println(documentFields.getSourceAsMap());
         }
     }
