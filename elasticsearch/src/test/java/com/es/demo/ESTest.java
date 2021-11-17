@@ -237,6 +237,8 @@ public class ESTest {
         SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
         System.out.println(response);
         System.out.println("===========================");
+
+        List<Map<String, Object>> list = new ArrayList<>();
         for (SearchHit documentFields : response.getHits().getHits()) {
 
             Map<String, HighlightField> highlightFields = documentFields.getHighlightFields();
@@ -253,7 +255,7 @@ public class ESTest {
                 sourceAsMap.put("title",n_title);
             }
 
-
+            list.add(sourceAsMap);
             System.out.println(documentFields.getSourceAsMap());
         }
     }
