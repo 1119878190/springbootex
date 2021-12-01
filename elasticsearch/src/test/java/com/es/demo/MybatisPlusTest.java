@@ -62,5 +62,15 @@ public class MybatisPlusTest {
         user.setId("3");
         user.setName("hahah");
         userService.custom(user);
+
+
+    }
+
+    @Test
+    public void saveOne(){
+        User user = new User();
+        user.setName("389");
+        user.setIdCard("234234");
+        userService.save(user);
     }
 }

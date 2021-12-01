@@ -20,6 +20,9 @@ public class User {
     @TableField(exist = false)
     private int age;
 
+    @TableField("id_card")
+    private String idCard;
+
     public String getName() {
         return name;
     }
@@ -68,5 +71,13 @@ public class User {
                 ", password='" + password + '\'' +
                 ", age=" + age +
                 '}';
+    }
+
+    public String getIdCard() {
+        return idCard;
+    }
+
+    public void setIdCard(String idCard) {
+        this.idCard = idCard;
     }
 }
