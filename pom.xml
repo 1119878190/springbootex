@@ -17,6 +17,9 @@
         <module>shiro_demo</module>
         <module>mongodb</module>
         <module>elasticsearch</module>
+        <module>mybatis_plus</module>
+        <module>exception_resolve</module>
+        <module>annotation_operation_log</module>
     </modules>
 
 
@@ -41,11 +44,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
-            <version>1.1.12</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.alibaba</groupId>-->
+<!--            <artifactId>druid</artifactId>-->
+<!--            <version>1.1.12</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.thymeleaf</groupId>
             <artifactId>thymeleaf-spring5</artifactId>
